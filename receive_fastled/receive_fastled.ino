@@ -16,18 +16,18 @@ ArtnetReceiver artnet;
 uint8_t universe = 1;  // 0 - 15
 
 // FastLED
-#define NUM_LEDS 1
+#define NUM_LEDS 20
 CRGB leds[NUM_LEDS];
 //const uint8_t PIN_LED_DATA = 3;
 #define DATA_PIN 3
-#define CLOCK_PIN 4
-
+#define CLOCK_PIN 6
+size_t idx = 0;
 void setup() {
     Serial.begin(115200);
     delay(2000);
 
     //FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-    FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, RGB>(leds, NUM_LEDS);  // BGR ordering is typical
+    FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS);  // BGR ordering is typical
 
     //Ethernet.begin(mac, ip);
         //Ethernet.begin(mac, ip);
@@ -59,8 +59,9 @@ void setup() {
     //     // set led
     //     // artnet data size per packet is 512 max
     //     // so there is max 170 pixel per packet (per universe)
+         idx = 0;
          for (size_t pixel = 0; pixel < NUM_LEDS; ++pixel) {
-             size_t idx = pixel * 3;
+             idx = pixel * 3;
              leds[pixel].r = data[idx + 0];
              leds[pixel].g = data[idx + 1];
              leds[pixel].b = data[idx + 2];
