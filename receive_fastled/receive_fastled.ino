@@ -13,10 +13,12 @@
 uint8_t mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
 ArtnetReceiver artnet;
-uint8_t universe = 1;  // 0 - 15
+uint8_t uni_1 = 1;  // 0 - 15
+uint8_t uni_2 = 2;
+uint8_t uni_3 = 3;
 
 // FastLED
-#define NUM_LEDS 20
+#define NUM_LEDS 605
 CRGB leds[NUM_LEDS];
 //const uint8_t PIN_LED_DATA = 3;
 #define DATA_PIN 3
@@ -26,8 +28,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
 
-    //FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-    FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS);  // BGR ordering is typical
+    FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+    //FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS);  // BGR ordering is typical
 
     //Ethernet.begin(mac, ip);
         //Ethernet.begin(mac, ip);
@@ -55,16 +57,51 @@ void setup() {
 
     // this can be achieved manually as follows
     // if Artnet packet comes to this universe, this function (lambda) is called
-     artnet.subscribeArtDmxUniverse(universe, [&](const uint8_t* data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
+     
+     artnet.subscribeArtDmxUniverse(uni_1, [&](const uint8_t* data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
     //     // set led
     //     // artnet data size per packet is 512 max
     //     // so there is max 170 pixel per packet (per universe)
-         idx = 0;
-         for (size_t pixel = 0; pixel < NUM_LEDS; ++pixel) {
+         //idx = 0;
+         for (size_t pixel = 0; pixel < 120; ++pixel) {
              idx = pixel * 3;
              leds[pixel].r = data[idx + 0];
              leds[pixel].g = data[idx + 1];
              leds[pixel].b = data[idx + 2];
+         }
+         //printMessage(size, data, remote);
+         
+     });
+     
+     artnet.subscribeArtDmxUniverse(uni_2, [&](const uint8_t* data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
+    //     // set led
+    //     // artnet data size per packet is 512 max
+    //     // so there is max 170 pixel per packet (per universe)
+         //idx = 0;
+         //idx = 60; // offset with 20 LEDS 
+         for (size_t pixel = 0; pixel < 120; ++pixel) {
+             idx = + pixel * 3;
+             //idx += 20*3; // offset with 20 LEDS on the LED strip
+             leds[pixel+120].r = data[idx + 0];
+             leds[pixel+120].g = data[idx + 1];
+             leds[pixel+120].b = data[idx + 2];
+         }
+         //printMessage(size, data, remote);
+         
+     });
+
+     artnet.subscribeArtDmxUniverse(uni_3, [&](const uint8_t* data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
+    //     // set led
+    //     // artnet data size per packet is 512 max
+    //     // so there is max 170 pixel per packet (per universe)
+         //idx = 0;
+         //idx = 60; // offset with 20 LEDS 
+         for (size_t pixel = 0; pixel < 120; ++pixel) {
+             idx = + pixel * 3;
+             //idx += 20*3; // offset with 20 LEDS on the LED strip
+             leds[pixel+240].r = data[idx + 0];
+             leds[pixel+240].g = data[idx + 1];
+             leds[pixel+240].b = data[idx + 2];
          }
          //printMessage(size, data, remote);
          
@@ -82,7 +119,7 @@ void printMessage(int size, const uint8_t* data, const ArtNetRemoteInfo &remote)
         Serial.print(":");
         Serial.print(remote.port);
         Serial.print(", universe = ");
-        Serial.print(universe);
+        Serial.print(uni_1);
         Serial.print(", size = ");
         Serial.print(size);
         Serial.print(") :");
